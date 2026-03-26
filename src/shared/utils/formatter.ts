@@ -1,4 +1,4 @@
-import { DustGrade, UvLevel, WeatherCondition } from '../../features/weather/weather.types';
+import { DustGrade, UvLevel, WeatherCondition, WeatherSource } from '../../features/weather/weather.types';
 import { PersonalColorTone, TempSensitivity, UsagePurpose } from '../types/profile';
 
 export function formatWeatherCondition(condition: WeatherCondition) {
@@ -66,3 +66,25 @@ export function formatPersonalColorTone(value: PersonalColorTone) {
   return labels[value];
 }
 
+export function formatWeatherSource(source: WeatherSource) {
+  const labels: Record<WeatherSource, string> = {
+    'live-current-location': '현재 위치 실황',
+    'live-default-location': '기본 지역 실황',
+    'mock-fallback': 'mock 폴백',
+  };
+
+  return labels[source];
+}
+
+export function formatUpdatedAt(isoString: string) {
+  const date = new Date(isoString);
+
+  if (Number.isNaN(date.getTime())) {
+    return '방금 갱신';
+  }
+
+  const hour = `${date.getHours()}`.padStart(2, '0');
+  const minute = `${date.getMinutes()}`.padStart(2, '0');
+
+  return `${hour}:${minute} 기준`;
+}

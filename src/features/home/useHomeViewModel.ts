@@ -64,6 +64,6 @@ export function useHomeViewModel() {
     avatarLook:
       state.profile == null || state.recommendation == null ? null : buildAvatarLook(state.profile, state.recommendation),
     reload: load,
+    hasFallbackWeather: state.weather?.source === 'mock-fallback',
   };
 }
-

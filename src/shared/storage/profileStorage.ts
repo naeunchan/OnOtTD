@@ -3,9 +3,18 @@ import { AvatarSetupInput, OnboardingInput, UserProfile } from '../types/profile
 import { getJson, removeString, setJson } from './appStorage';
 import { storageKeys } from './storageKeys';
 
+const PROFILE_STORAGE_VERSION = 1;
+
+interface StoredUserProfileV1 {
+  version: number;
+  data: UserProfile;
+}
+
+type StoredUserProfile = StoredUserProfileV1 | UserProfile | null;
+
 export async function getUserProfile(): Promise<UserProfile> {
-  const storedProfile = await getJson<UserProfile>(storageKeys.userProfile);
-  return storedProfile ?? DEFAULT_PROFILE;
+  const storedProfile = await getJson<StoredUserProfile>(storageKeys.userProfile);
+  return normalizeStoredProfile(storedProfile);
 }
 
 export async function saveOnboardingInput(input: OnboardingInput): Promise<UserProfile> {
@@ -16,8 +25,7 @@ export async function saveOnboardingInput(input: OnboardingInput): Promise<UserP
     onboardingCompleted: true,
   };
 
-  await setJson(storageKeys.userProfile, nextProfile);
-  return nextProfile;
+  return saveFullProfile(nextProfile);
 }
 
 export async function saveAvatarSetupInput(input: AvatarSetupInput): Promise<UserProfile> {
@@ -31,16 +39,52 @@ export async function saveAvatarSetupInput(input: AvatarSetupInput): Promise<Use
     },
   };
 
-  await setJson(storageKeys.userProfile, nextProfile);
-  return nextProfile;
+  return saveFullProfile(nextProfile);
 }
 
 export async function saveFullProfile(profile: UserProfile): Promise<UserProfile> {
-  await setJson(storageKeys.userProfile, profile);
-  return profile;
+  const normalizedProfile = normalizeProfile(profile);
+  await setJson(storageKeys.userProfile, {
+    version: PROFILE_STORAGE_VERSION,
+    data: normalizedProfile,
+  } satisfies StoredUserProfileV1);
+  return normalizedProfile;
 }
 
 export async function resetProfile() {
   await removeString(storageKeys.userProfile);
 }
 
+function normalizeStoredProfile(storedProfile: StoredUserProfile): UserProfile {
+  if (storedProfile == null) {
+    return DEFAULT_PROFILE;
+  }
+
+  if (isStoredProfileV1(storedProfile)) {
+    if (storedProfile.version !== PROFILE_STORAGE_VERSION) {
+      return DEFAULT_PROFILE;
+    }
+
+    return normalizeProfile(storedProfile.data);
+  }
+
+  return normalizeProfile(storedProfile);
+}
+
+function isStoredProfileV1(value: StoredUserProfile): value is StoredUserProfileV1 {
+  return typeof value === 'object' && value != null && 'version' in value && 'data' in value;
+}
+
+function normalizeProfile(profile: UserProfile): UserProfile {
+  const avatar = typeof profile.avatar === 'object' && profile.avatar != null ? profile.avatar : DEFAULT_PROFILE.avatar;
+
+  return {
+    ...DEFAULT_PROFILE,
+    ...profile,
+    avatar: {
+      ...DEFAULT_PROFILE.avatar,
+      ...avatar,
+      nickname: avatar.nickname?.trim().length ? avatar.nickname.trim() : DEFAULT_PROFILE.avatar.nickname,
+    },
+  };
+}

@@ -22,6 +22,7 @@
 ```bash
 npm install
 npm run dev
+npm run typecheck
 npm run build
 npm run test
 ```
@@ -32,6 +33,7 @@ npm run test
 2. 샌드박스 앱에서 `intoss://onottd`를 엽니다.
 3. Android는 `adb reverse tcp:8081 tcp:8081`와 `adb reverse tcp:5173 tcp:5173`를 연결합니다.
 4. iOS 실기기는 같은 Wi-Fi와 로컬 네트워크 권한이 필요합니다.
+5. 위치 권한 허용/거부 각각에서 홈 진입과 폴백 문구를 확인합니다.
 
 ## 현재 데이터 소스
 
@@ -42,7 +44,7 @@ npm run test
 
 ## 빌드 시점 환경 변수
 
-필수는 아니고, 기본값으로도 동작합니다.
+필수는 아니고, 기본값으로도 동작합니다. 로컬 시작 시에는 `.env.example`를 참고해 필요한 값만 셸 환경 변수로 주입하면 됩니다.
 
 ```bash
 ONOTTD_WEATHER_MODE=live
@@ -52,3 +54,11 @@ ONOTTD_DEFAULT_LOCATION_NAME=서울 성수동
 ONOTTD_OPEN_METEO_WEATHER_URL=https://api.open-meteo.com/v1/forecast
 ONOTTD_OPEN_METEO_AIR_QUALITY_URL=https://air-quality-api.open-meteo.com/v1/air-quality
 ```
+
+## 릴리즈 전 최소 체크리스트
+
+1. `npm run typecheck`
+2. `npm test -- --watch=false`
+3. `npm run build`
+4. 생성된 `onottd.ait`를 샌드박스 앱과 콘솔 업로드 전 점검합니다.
+5. `granite.config.ts`의 브랜드 아이콘은 현재 개발용 기본 URL이므로, 실제 배포 전에는 서비스 전용 아이콘 URL로 교체합니다.

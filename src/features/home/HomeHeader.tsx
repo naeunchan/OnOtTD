@@ -6,10 +6,11 @@ interface HomeHeaderProps {
   nickname: string;
   locationName: string;
   summary: string;
+  temperatureBandLabel: string;
   onOpenSettings: () => void;
 }
 
-export function HomeHeader({ nickname, locationName, summary, onOpenSettings }: HomeHeaderProps) {
+export function HomeHeader({ nickname, locationName, summary, temperatureBandLabel, onOpenSettings }: HomeHeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
@@ -20,6 +21,9 @@ export function HomeHeader({ nickname, locationName, summary, onOpenSettings }: 
         <Pressable onPress={onOpenSettings}>
           <Text style={styles.settingsLink}>설정</Text>
         </Pressable>
+      </View>
+      <View style={styles.pill}>
+        <Text style={styles.pillText}>{temperatureBandLabel}</Text>
       </View>
       <Text style={styles.summary}>{summary}</Text>
     </View>
@@ -61,5 +65,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
+  pill: {
+    alignSelf: 'flex-start',
+    backgroundColor: appColors.primarySoft,
+    borderRadius: 999,
+    paddingHorizontal: spacing.s12,
+    paddingVertical: spacing.s8,
+  },
+  pillText: {
+    color: appColors.primary,
+    fontSize: 13,
+    fontWeight: '700',
+  },
 });
-

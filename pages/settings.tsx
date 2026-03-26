@@ -13,6 +13,9 @@ function SettingsPage() {
       onSaved={() => {
         navigation.navigate('/');
       }}
+      onReset={() => {
+        navigation.navigate('/onboarding');
+      }}
     />
   );
 }

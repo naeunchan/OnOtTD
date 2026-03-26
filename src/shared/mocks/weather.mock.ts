@@ -9,5 +9,7 @@ export const DEFAULT_WEATHER_MOCK: WeatherSnapshot = {
   uvIndex: 6,
   uvLevel: 'high',
   precipitationChance: 10,
+  source: 'mock-fallback',
+  sourceMessage: 'mock 데이터로 보여주고 있어요.',
+  updatedAt: new Date('2026-03-25T08:00:00+09:00').toISOString(),
 };
-
