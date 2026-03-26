@@ -8,6 +8,7 @@ import { CarryItemChips } from './CarryItemChips';
 import { HomeContextCard } from './HomeContextCard';
 import { HomeDiagnosticsCard } from './HomeDiagnosticsCard';
 import { HomeHeader } from './HomeHeader';
+import { getHomeReloadLabel } from './homeDiagnostics';
 import { TodayOutfitCard } from './TodayOutfitCard';
 import { useHomeViewModel } from './useHomeViewModel';
 import { WeatherSummaryCard } from './WeatherSummaryCard';
@@ -73,11 +74,10 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
 
       <View style={styles.footerButtons}>
         <Button loading={viewModel.refreshing} onPress={viewModel.reload}>
-          {viewModel.hasFallbackWeather
-            ? '실시간 날씨 다시 시도'
-            : viewModel.usesDefaultLocationWeather
-              ? '현재 위치 기준으로 다시 확인'
-              : '실시간 날씨 다시 불러오기'}
+          {getHomeReloadLabel({
+            hasFallbackWeather: viewModel.hasFallbackWeather,
+            usesDefaultLocationWeather: viewModel.usesDefaultLocationWeather,
+          })}
         </Button>
         <Button onPress={onOpenSettings} style="weak" type="dark">
           설정 보기
