@@ -15,7 +15,8 @@ export const sandboxChecklistSections: SandboxChecklistSection[] = [
   },
   {
     title: '위치 거부 시',
-    description: '홈 상단에 `기본 지역 실황`이 보이고, 설정에서 권한을 허용하면 현재 위치 기준으로 바뀐다는 안내 문구를 확인합니다.',
+    description:
+      '홈 상단에 `기본 지역 실황`이 보이고, 설정에서 권한을 허용하면 현재 위치 기준으로 바뀐다는 안내 문구를 확인합니다. 실기기 권한 변경이 번거로우면 `기본 지역 실황 강제`를 사용합니다.',
     tone: 'warning',
   },
   {
