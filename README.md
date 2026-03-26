@@ -23,6 +23,8 @@
 npm install
 npm run dev
 npm run typecheck
+npm run test:ci
+npm run verify
 npm run build
 npm run test
 ```
@@ -70,8 +72,7 @@ ONOTTD_OPEN_METEO_AIR_QUALITY_URL=https://air-quality-api.open-meteo.com/v1/air-
 
 ## 릴리즈 전 최소 체크리스트
 
-1. `npm run typecheck`
-2. `npm test -- --watch=false`
-3. `npm run build`
-4. 생성된 `onottd.ait`를 샌드박스 앱과 콘솔 업로드 전 점검합니다.
-5. `granite.config.ts`의 브랜드 아이콘은 현재 개발용 기본 URL이므로, 실제 배포 전에는 서비스 전용 아이콘 URL로 교체합니다.
+1. `npm run verify`
+2. 생성된 `onottd.ait`를 샌드박스 앱과 콘솔 업로드 전 점검합니다.
+3. `granite.config.ts`의 브랜드 아이콘은 현재 개발용 기본 URL이므로, 실제 배포 전에는 서비스 전용 아이콘 URL로 교체합니다.
+4. 자세한 체크 순서는 `docs/release-checklist.md`를 따릅니다.

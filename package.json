@@ -6,7 +6,9 @@
     "dev": "granite dev",
     "build": "ait build",
     "test": "jest --passWithNoTests",
-    "typecheck": "tsc --noEmit"
+    "test:ci": "jest --passWithNoTests --watch=false",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run test:ci && npm run build"
   },
   "dependencies": {
     "@apps-in-toss/framework": "2.0.5",
