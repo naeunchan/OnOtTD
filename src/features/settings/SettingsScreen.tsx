@@ -8,6 +8,7 @@ import { getUserProfile, resetProfile, saveFullProfile } from '../../shared/stor
 import { UserProfile } from '../../shared/types/profile';
 import { AvatarPreview } from '../avatar/AvatarPreview';
 import { buildAvatarLook } from '../avatar/buildAvatarLook';
+import { SandboxChecklistCard } from './SandboxChecklistCard';
 import { SettingsForm } from './SettingsForm';
 import { useSettingsForm } from './useSettingsForm';
 
@@ -87,6 +88,7 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
       <Text style={{ color: appColors.textSecondary, fontSize: 14, lineHeight: 20 }}>
         이 빌드는 `geolocation` 권한이 선언되어 있습니다. 권한이 허용되면 현재 위치 날씨를, 아니면 기본 지역 날씨를 사용합니다.
       </Text>
+      <SandboxChecklistCard />
       <View style={{ gap: spacing.s12 }}>
         <Button loading={saving} onPress={handleSave}>
           저장하고 홈으로
