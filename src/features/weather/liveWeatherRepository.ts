@@ -3,7 +3,7 @@ import { DEFAULT_WEATHER_MOCK } from '../../shared/mocks/weather.mock';
 import { mockWeatherRepository } from './mockWeatherRepository';
 import { mapPm10ToDustGrade, mapUvIndexToLevel, mapWeatherCodeToCondition } from './liveWeatherMapper';
 import type { WeatherRepository } from './weatherRepository';
-import { WeatherSnapshot } from './weather.types';
+import { WeatherSnapshot, WeatherSource } from './weather.types';
 
 interface ForecastCurrentResponse {
   current?: {
@@ -26,12 +26,16 @@ interface ResolvedLocation {
   latitude: number;
   longitude: number;
   locationName: string;
+  source: Extract<WeatherSource, 'live-current-location' | 'live-default-location'>;
+  sourceMessage: string;
 }
 
 const DEFAULT_LOCATION: ResolvedLocation = {
   latitude: readNumberEnv('ONOTTD_DEFAULT_LATITUDE', 37.5447),
   longitude: readNumberEnv('ONOTTD_DEFAULT_LONGITUDE', 127.0561),
   locationName: import.meta.env.ONOTTD_DEFAULT_LOCATION_NAME ?? '서울 성수동',
+  source: 'live-default-location',
+  sourceMessage: '위치 권한 없이 기본 지역 기준 실날씨를 보여줘요.',
 };
 
 const WEATHER_API_URL = import.meta.env.ONOTTD_OPEN_METEO_WEATHER_URL ?? 'https://api.open-meteo.com/v1/forecast';
@@ -69,6 +73,8 @@ async function resolveLocation(): Promise<ResolvedLocation> {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
       locationName: '현재 위치',
+      source: 'live-current-location',
+      sourceMessage: '현재 위치 기준 실날씨를 반영했어요.',
     };
   } catch (error) {
     console.warn('Current location is unavailable. Falling back to default location.', error);
@@ -149,6 +155,9 @@ function buildWeatherSnapshot(
       currentForecast.precipitation_probability,
       DEFAULT_WEATHER_MOCK.precipitationChance
     ),
+    source: location.source,
+    sourceMessage: location.sourceMessage,
+    updatedAt: new Date().toISOString(),
   };
 }
 

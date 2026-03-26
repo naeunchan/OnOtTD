@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     gap: spacing.s12,
   },
   item: {
-    width: '47%',
+    width: '48%',
     backgroundColor: appColors.surfaceMuted,
     borderRadius: 18,
     padding: spacing.s12,
@@ -69,4 +69,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-

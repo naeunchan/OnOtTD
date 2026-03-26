@@ -5,6 +5,7 @@ export const mockWeatherRepository: WeatherRepository = {
   async getTodayWeather() {
     return Promise.resolve({
       ...DEFAULT_WEATHER_MOCK,
+      updatedAt: new Date().toISOString(),
     });
   },
 };

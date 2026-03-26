@@ -5,6 +5,7 @@ import { spacing } from '../../app/theme/spacing';
 import { Screen } from '../../shared/components/Screen';
 import { AvatarPreview } from '../avatar/AvatarPreview';
 import { CarryItemChips } from './CarryItemChips';
+import { HomeContextCard } from './HomeContextCard';
 import { HomeHeader } from './HomeHeader';
 import { TodayOutfitCard } from './TodayOutfitCard';
 import { useHomeViewModel } from './useHomeViewModel';
@@ -43,16 +44,20 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
         nickname={viewModel.profile.avatar.nickname}
         locationName={viewModel.weather.locationName}
         summary={viewModel.recommendation.summary}
+        temperatureBandLabel={viewModel.recommendation.temperatureBandLabel}
         onOpenSettings={onOpenSettings}
       />
 
+      <HomeContextCard profile={viewModel.profile} weather={viewModel.weather} />
       <AvatarPreview nickname={viewModel.profile.avatar.nickname} look={viewModel.avatarLook} />
       <WeatherSummaryCard weather={viewModel.weather} />
       <TodayOutfitCard recommendation={viewModel.recommendation} />
       <CarryItemChips items={viewModel.recommendation.carryItems} />
 
       <View style={styles.footerButtons}>
-        <Button onPress={viewModel.reload}>실시간 날씨 다시 불러오기</Button>
+        <Button onPress={viewModel.reload}>
+          {viewModel.hasFallbackWeather ? '실시간 날씨 다시 시도' : '실시간 날씨 다시 불러오기'}
+        </Button>
         <Button onPress={onOpenSettings} style="weak" type="dark">
           설정 보기
         </Button>
