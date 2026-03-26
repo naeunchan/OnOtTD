@@ -6,12 +6,14 @@ import { defineConfig } from '@granite-js/react-native/config';
 export default defineConfig({
   scheme: 'intoss',
   appName: 'onottd',
+  entryFile: './src/_app.tsx',
+  outdir: 'dist',
   plugins: [
     appsInToss({
       brand: {
         displayName: '온옷티디',
         primaryColor: '#2274F5',
-        icon: '',
+        icon: 'https://static.toss.im/icons/app-icon.png',
       },
       permissions: [
         {
@@ -19,6 +21,10 @@ export default defineConfig({
           access: 'access',
         },
       ],
+      navigationBar: {
+        withBackButton: true,
+        withHomeButton: false,
+      },
     }),
     env({
       ONOTTD_WEATHER_MODE: process.env.ONOTTD_WEATHER_MODE ?? 'live',
