@@ -1,0 +1,32 @@
+{
+  "name": "onottd",
+  "private": true,
+  "scripts": {
+    "dev": "granite dev",
+    "build": "ait build",
+    "test": "jest --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@apps-in-toss/framework": "2.0.5",
+    "@granite-js/native": "1.0.4",
+    "@granite-js/plugin-core": "1.0.4",
+    "@granite-js/plugin-env": "1.0.4",
+    "@granite-js/plugin-router": "1.0.4",
+    "@granite-js/react-native": "1.0.4",
+    "@toss/tds-react-native": "2.0.2",
+    "react": "19.2.3",
+    "react-native": "0.84.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/runtime": "^7.26.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.2",
+    "@types/react": "19.2.3",
+    "babel-preset-granite": "1.0.3",
+    "jest": "^29.7.0",
+    "react-test-renderer": "19.2.3",
+    "typescript": "^5.7.2"
+  }
+}

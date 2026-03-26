@@ -1,0 +1,17 @@
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+.granite/
+.swc/
+dist/
+coverage/
+*.ait
+.DS_Store
+.env
+.env.local
+.vscode/
+
