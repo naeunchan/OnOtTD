@@ -1,11 +1,15 @@
 import { liveWeatherRepository } from './liveWeatherRepository';
 import { mockWeatherRepository } from './mockWeatherRepository';
-import { resolveWeatherMode, normalizeWeatherMode } from './weatherModeResolver';
+import { resolveWeatherExecution, normalizeWeatherMode } from './weatherModeResolver';
 import { getWeatherModeOverride } from './weatherModeStorage';
 import { WeatherSnapshot } from './weather.types';
 
+export interface WeatherRequestOptions {
+  locationMode?: 'system' | 'default-region';
+}
+
 export interface WeatherRepository {
-  getTodayWeather(): Promise<WeatherSnapshot>;
+  getTodayWeather(options?: WeatherRequestOptions): Promise<WeatherSnapshot>;
 }
 
 export const buildTimeWeatherMode = normalizeWeatherMode(import.meta.env.ONOTTD_WEATHER_MODE);
@@ -13,8 +17,10 @@ export const buildTimeWeatherMode = normalizeWeatherMode(import.meta.env.ONOTTD_
 export const weatherRepository: WeatherRepository = {
   async getTodayWeather() {
     const overrideMode = await getWeatherModeOverride();
-    const weatherMode = resolveWeatherMode(overrideMode, buildTimeWeatherMode);
+    const execution = resolveWeatherExecution(overrideMode, buildTimeWeatherMode);
 
-    return weatherMode === 'mock' ? mockWeatherRepository.getTodayWeather() : liveWeatherRepository.getTodayWeather();
+    return execution.weatherMode === 'mock'
+      ? mockWeatherRepository.getTodayWeather()
+      : liveWeatherRepository.getTodayWeather({ locationMode: execution.locationMode });
   },
 };

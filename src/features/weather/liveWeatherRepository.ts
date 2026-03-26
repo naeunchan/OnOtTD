@@ -2,7 +2,7 @@ import { Accuracy, getCurrentLocation } from '@apps-in-toss/framework';
 import { DEFAULT_WEATHER_MOCK } from '../../shared/mocks/weather.mock';
 import { mockWeatherRepository } from './mockWeatherRepository';
 import { mapPm10ToDustGrade, mapUvIndexToLevel, mapWeatherCodeToCondition } from './liveWeatherMapper';
-import type { WeatherRepository } from './weatherRepository';
+import type { WeatherRepository, WeatherRequestOptions } from './weatherRepository';
 import { WeatherPermissionState, WeatherSnapshot, WeatherSource } from './weather.types';
 
 interface ForecastCurrentResponse {
@@ -49,9 +49,9 @@ const AIR_QUALITY_API_URL =
   import.meta.env.ONOTTD_OPEN_METEO_AIR_QUALITY_URL ?? 'https://air-quality-api.open-meteo.com/v1/air-quality';
 
 export const liveWeatherRepository: WeatherRepository = {
-  async getTodayWeather() {
+  async getTodayWeather(options) {
     try {
-      const location = await resolveLocation();
+      const location = await resolveLocation(options);
       const [forecast, airQuality] = await Promise.all([
         fetchJson<ForecastCurrentResponse>(buildForecastUrl(location)),
         fetchJson<AirQualityCurrentResponse>(buildAirQualityUrl(location)),
@@ -65,7 +65,14 @@ export const liveWeatherRepository: WeatherRepository = {
   },
 };
 
-async function resolveLocation(): Promise<ResolvedLocation> {
+async function resolveLocation(options?: WeatherRequestOptions): Promise<ResolvedLocation> {
+  if (options?.locationMode === 'default-region') {
+    return {
+      ...DEFAULT_LOCATION_WITH_UNKNOWN_PERMISSION,
+      sourceMessage: `테스트 모드로 ${DEFAULT_LOCATION.locationName} 기준 실날씨를 보여줘요.`,
+    };
+  }
+
   try {
     const permissionStatus = await getLocationPermissionStatus();
 
