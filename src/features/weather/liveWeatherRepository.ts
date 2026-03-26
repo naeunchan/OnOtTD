@@ -3,7 +3,7 @@ import { DEFAULT_WEATHER_MOCK } from '../../shared/mocks/weather.mock';
 import { mockWeatherRepository } from './mockWeatherRepository';
 import { mapPm10ToDustGrade, mapUvIndexToLevel, mapWeatherCodeToCondition } from './liveWeatherMapper';
 import type { WeatherRepository } from './weatherRepository';
-import { WeatherSnapshot, WeatherSource } from './weather.types';
+import { WeatherPermissionState, WeatherSnapshot, WeatherSource } from './weather.types';
 
 interface ForecastCurrentResponse {
   current?: {
@@ -27,15 +27,21 @@ interface ResolvedLocation {
   longitude: number;
   locationName: string;
   source: Extract<WeatherSource, 'live-current-location' | 'live-default-location'>;
+  permissionState: WeatherPermissionState;
   sourceMessage: string;
 }
 
-const DEFAULT_LOCATION: ResolvedLocation = {
+const DEFAULT_LOCATION = {
   latitude: readNumberEnv('ONOTTD_DEFAULT_LATITUDE', 37.5447),
   longitude: readNumberEnv('ONOTTD_DEFAULT_LONGITUDE', 127.0561),
   locationName: import.meta.env.ONOTTD_DEFAULT_LOCATION_NAME ?? '서울 성수동',
+};
+
+const DEFAULT_LOCATION_WITH_UNKNOWN_PERMISSION: ResolvedLocation = {
+  ...DEFAULT_LOCATION,
   source: 'live-default-location',
-  sourceMessage: '위치 권한 없이 기본 지역 기준 실날씨를 보여줘요.',
+  permissionState: 'unknown',
+  sourceMessage: `${DEFAULT_LOCATION.locationName} 기준 실날씨를 보여줘요.`,
 };
 
 const WEATHER_API_URL = import.meta.env.ONOTTD_OPEN_METEO_WEATHER_URL ?? 'https://api.open-meteo.com/v1/forecast';
@@ -63,8 +69,20 @@ async function resolveLocation(): Promise<ResolvedLocation> {
   try {
     const permissionStatus = await getLocationPermissionStatus();
 
-    if (permissionStatus == null || isPermissionGranted(permissionStatus) === false) {
-      return DEFAULT_LOCATION;
+    if (permissionStatus == null) {
+      return {
+        ...DEFAULT_LOCATION_WITH_UNKNOWN_PERMISSION,
+        sourceMessage: `위치 권한 상태를 확인할 수 없어 ${DEFAULT_LOCATION.locationName} 기준 실날씨를 보여줘요.`,
+      };
+    }
+
+    if (isPermissionGranted(permissionStatus) === false) {
+      return {
+        ...DEFAULT_LOCATION,
+        source: 'live-default-location',
+        permissionState: 'denied',
+        sourceMessage: `위치 권한이 없어 ${DEFAULT_LOCATION.locationName} 기준 실날씨를 보여줘요.`,
+      };
     }
 
     const location = await getCurrentLocation({ accuracy: Accuracy.Balanced });
@@ -74,11 +92,15 @@ async function resolveLocation(): Promise<ResolvedLocation> {
       longitude: location.coords.longitude,
       locationName: '현재 위치',
       source: 'live-current-location',
+      permissionState: 'granted',
       sourceMessage: '현재 위치 기준 실날씨를 반영했어요.',
     };
   } catch (error) {
     console.warn('Current location is unavailable. Falling back to default location.', error);
-    return DEFAULT_LOCATION;
+    return {
+      ...DEFAULT_LOCATION_WITH_UNKNOWN_PERMISSION,
+      sourceMessage: `현재 위치를 가져오지 못해 ${DEFAULT_LOCATION.locationName} 기준 실날씨를 보여줘요.`,
+    };
   }
 }
 
@@ -156,6 +178,7 @@ function buildWeatherSnapshot(
       DEFAULT_WEATHER_MOCK.precipitationChance
     ),
     source: location.source,
+    permissionState: location.permissionState,
     sourceMessage: location.sourceMessage,
     updatedAt: new Date().toISOString(),
   };
