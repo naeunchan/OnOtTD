@@ -4,14 +4,20 @@ import { UserProfile } from '../../shared/types/profile';
 import { buildAvatarLook } from '../avatar/buildAvatarLook';
 import { recommendOutfit } from '../recommendation/recommendOutfit';
 import { RecommendationResult } from '../recommendation/recommendation.types';
-import { weatherRepository } from '../weather/weatherRepository';
+import { buildTimeWeatherMode, weatherRepository } from '../weather/weatherRepository';
 import { WeatherSnapshot } from '../weather/weather.types';
+import { resolveWeatherExecution, ResolvedWeatherExecution, WeatherModeOverride } from '../weather/weatherModeResolver';
+import { getWeatherModeOverride } from '../weather/weatherModeStorage';
+
+export type HomeRefreshState = 'initial-loading' | 'refreshing' | 'ready' | 'refresh-error';
 
 interface HomeViewModelState {
   loading: boolean;
   refreshing: boolean;
   error: string | null;
   refreshError: string | null;
+  weatherModeOverride: WeatherModeOverride;
+  weatherExecution: ResolvedWeatherExecution;
   profile: UserProfile | null;
   weather: WeatherSnapshot | null;
   recommendation: RecommendationResult | null;
@@ -22,6 +28,8 @@ const initialState: HomeViewModelState = {
   refreshing: false,
   error: null,
   refreshError: null,
+  weatherModeOverride: 'system',
+  weatherExecution: resolveWeatherExecution('system', buildTimeWeatherMode),
   profile: null,
   weather: null,
   recommendation: null,
@@ -42,7 +50,12 @@ export function useHomeViewModel() {
     }));
 
     try {
-      const [profile, weather] = await Promise.all([getUserProfile(), weatherRepository.getTodayWeather()]);
+      const [profile, weatherModeOverride, weather] = await Promise.all([
+        getUserProfile(),
+        getWeatherModeOverride(),
+        weatherRepository.getTodayWeather(),
+      ]);
+      const weatherExecution = resolveWeatherExecution(weatherModeOverride, buildTimeWeatherMode);
       const recommendation = recommendOutfit({ profile, weather });
 
       setState({
@@ -50,6 +63,8 @@ export function useHomeViewModel() {
         refreshing: false,
         error: null,
         refreshError: null,
+        weatherModeOverride,
+        weatherExecution,
         profile,
         weather,
         recommendation,
@@ -72,6 +87,8 @@ export function useHomeViewModel() {
         refreshing: false,
         error: message,
         refreshError: null,
+        weatherModeOverride: 'system',
+        weatherExecution: resolveWeatherExecution('system', buildTimeWeatherMode),
         profile: null,
         weather: null,
         recommendation: null,
@@ -83,11 +100,21 @@ export function useHomeViewModel() {
     void load();
   }, []);
 
+  const refreshState: HomeRefreshState = state.loading
+    ? 'initial-loading'
+    : state.refreshing
+      ? 'refreshing'
+      : state.refreshError != null
+        ? 'refresh-error'
+        : 'ready';
+
   return {
     ...state,
     avatarLook:
       state.profile == null || state.recommendation == null ? null : buildAvatarLook(state.profile, state.recommendation),
     reload: load,
+    buildTimeWeatherMode,
+    refreshState,
     hasFallbackWeather: state.weather?.source === 'mock-fallback',
     usesDefaultLocationWeather: state.weather?.source === 'live-default-location',
   };
