@@ -55,6 +55,9 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
         effectiveWeatherMode={viewModel.weatherExecution.weatherMode}
         locationMode={viewModel.weatherExecution.locationMode}
         permissionState={viewModel.weather.permissionState}
+        refreshError={viewModel.refreshError}
+        refreshState={viewModel.refreshState}
+        updatedAt={viewModel.weather.updatedAt}
         weatherModeOverride={viewModel.weatherModeOverride}
       />
       <AvatarPreview nickname={viewModel.profile.avatar.nickname} look={viewModel.avatarLook} />

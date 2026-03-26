@@ -9,6 +9,8 @@ import { WeatherSnapshot } from '../weather/weather.types';
 import { resolveWeatherExecution, ResolvedWeatherExecution, WeatherModeOverride } from '../weather/weatherModeResolver';
 import { getWeatherModeOverride } from '../weather/weatherModeStorage';
 
+export type HomeRefreshState = 'initial-loading' | 'refreshing' | 'ready' | 'refresh-error';
+
 interface HomeViewModelState {
   loading: boolean;
   refreshing: boolean;
@@ -98,12 +100,21 @@ export function useHomeViewModel() {
     void load();
   }, []);
 
+  const refreshState: HomeRefreshState = state.loading
+    ? 'initial-loading'
+    : state.refreshing
+      ? 'refreshing'
+      : state.refreshError != null
+        ? 'refresh-error'
+        : 'ready';
+
   return {
     ...state,
     avatarLook:
       state.profile == null || state.recommendation == null ? null : buildAvatarLook(state.profile, state.recommendation),
     reload: load,
     buildTimeWeatherMode,
+    refreshState,
     hasFallbackWeather: state.weather?.source === 'mock-fallback',
     usesDefaultLocationWeather: state.weather?.source === 'live-default-location',
   };

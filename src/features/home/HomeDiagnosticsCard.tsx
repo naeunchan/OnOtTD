@@ -6,16 +6,21 @@ import {
   formatWeatherMode,
   formatWeatherModeOverride,
   formatWeatherPermissionState,
+  formatUpdatedAt,
 } from '../../shared/utils/formatter';
 import { Section } from '../../shared/components/Section';
 import { WeatherPermissionState } from '../weather/weather.types';
 import { WeatherModeOverride, WeatherLocationMode } from '../weather/weatherModeResolver';
+import { HomeRefreshState } from './useHomeViewModel';
 
 interface HomeDiagnosticsCardProps {
   buildTimeWeatherMode: 'live' | 'mock';
   effectiveWeatherMode: 'live' | 'mock';
   locationMode: WeatherLocationMode;
   permissionState: WeatherPermissionState;
+  refreshError: string | null;
+  refreshState: HomeRefreshState;
+  updatedAt: string;
   weatherModeOverride: WeatherModeOverride;
 }
 
@@ -24,6 +29,9 @@ export function HomeDiagnosticsCard({
   effectiveWeatherMode,
   locationMode,
   permissionState,
+  refreshError,
+  refreshState,
+  updatedAt,
   weatherModeOverride,
 }: HomeDiagnosticsCardProps) {
   return (
@@ -37,8 +45,11 @@ export function HomeDiagnosticsCard({
         <DiagnosticItem label="실행 모드" value={formatWeatherMode(effectiveWeatherMode)} />
         <DiagnosticItem label="위치 경로" value={formatWeatherLocationMode(locationMode)} />
         <DiagnosticItem label="권한 상태" value={formatWeatherPermissionState(permissionState)} />
+        <DiagnosticItem label="갱신 상태" value={formatRefreshState(refreshState)} />
+        <DiagnosticItem label="마지막 기준" value={formatUpdatedAt(updatedAt)} />
       </View>
       <Text style={styles.helper}>{getDiagnosticsHelper(weatherModeOverride, locationMode)}</Text>
+      <Text style={styles.helper}>{getRefreshHelper(refreshState, refreshError)}</Text>
     </Section>
   );
 }
@@ -66,6 +77,35 @@ function getDiagnosticsHelper(weatherModeOverride: WeatherModeOverride, location
   }
 
   return '현재는 빌드 기본값을 따르는 상태입니다. 설정에서 테스트 모드를 바꾸면 홈 결과가 즉시 달라집니다.';
+}
+
+function formatRefreshState(refreshState: HomeRefreshState) {
+  const labels: Record<HomeRefreshState, string> = {
+    'initial-loading': '초기 로드 중',
+    refreshing: '다시 불러오는 중',
+    ready: '최신 상태',
+    'refresh-error': '마지막 갱신 실패',
+  };
+
+  return labels[refreshState];
+}
+
+function getRefreshHelper(refreshState: HomeRefreshState, refreshError: string | null) {
+  if (refreshState === 'initial-loading') {
+    return '첫 홈 진입 시 필요한 프로필과 날씨를 가져오는 중입니다.';
+  }
+
+  if (refreshState === 'refreshing') {
+    return '현재 날씨와 추천 결과를 다시 계산하고 있습니다.';
+  }
+
+  if (refreshState === 'refresh-error') {
+    return refreshError == null
+      ? '마지막 새로고침에 실패해 이전 결과를 유지하고 있습니다.'
+      : `마지막 새로고침에 실패해 이전 결과를 유지하고 있습니다. ${refreshError}`;
+  }
+
+  return '가장 최근에 성공한 결과를 기준으로 홈 화면을 보여주고 있습니다.';
 }
 
 const styles = StyleSheet.create({
