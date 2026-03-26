@@ -1,0 +1,23 @@
+import { formatWeatherSourceHint } from './formatter';
+
+describe('formatWeatherSourceHint', () => {
+  it('guides the user to re-enable location permission when using the default region', () => {
+    expect(
+      formatWeatherSourceHint({
+        source: 'live-default-location',
+        permissionState: 'denied',
+        locationName: '서울 성수동',
+      })
+    ).toContain('위치 권한을 허용');
+  });
+
+  it('guides the user to retry live weather when mock fallback is shown', () => {
+    expect(
+      formatWeatherSourceHint({
+        source: 'mock-fallback',
+        permissionState: 'unknown',
+        locationName: '서울 성수동',
+      })
+    ).toContain('실시간 날씨 다시 시도');
+  });
+});

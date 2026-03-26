@@ -53,10 +53,20 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
       <WeatherSummaryCard weather={viewModel.weather} />
       <TodayOutfitCard recommendation={viewModel.recommendation} />
       <CarryItemChips items={viewModel.recommendation.carryItems} />
+      {viewModel.refreshError != null ? (
+        <View style={styles.refreshNotice}>
+          <Text style={styles.refreshNoticeTitle}>새로고침에 실패했어요.</Text>
+          <Text style={styles.refreshNoticeMessage}>{viewModel.refreshError}</Text>
+        </View>
+      ) : null}
 
       <View style={styles.footerButtons}>
-        <Button onPress={viewModel.reload}>
-          {viewModel.hasFallbackWeather ? '실시간 날씨 다시 시도' : '실시간 날씨 다시 불러오기'}
+        <Button loading={viewModel.refreshing} onPress={viewModel.reload}>
+          {viewModel.hasFallbackWeather
+            ? '실시간 날씨 다시 시도'
+            : viewModel.usesDefaultLocationWeather
+              ? '현재 위치 기준으로 다시 확인'
+              : '실시간 날씨 다시 불러오기'}
         </Button>
         <Button onPress={onOpenSettings} style="weak" type="dark">
           설정 보기
@@ -86,5 +96,21 @@ const styles = StyleSheet.create({
   footerButtons: {
     gap: spacing.s12,
     marginBottom: spacing.s16,
+  },
+  refreshNotice: {
+    backgroundColor: appColors.primarySoft,
+    borderRadius: 20,
+    padding: spacing.s16,
+    gap: spacing.s8,
+  },
+  refreshNoticeTitle: {
+    color: appColors.primary,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  refreshNoticeMessage: {
+    color: appColors.textSecondary,
+    fontSize: 13,
+    lineHeight: 19,
   },
 });

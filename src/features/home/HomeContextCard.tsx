@@ -7,6 +7,7 @@ import {
   formatUpdatedAt,
   formatUsagePurpose,
   formatWeatherSource,
+  formatWeatherSourceHint,
 } from '../../shared/utils/formatter';
 import { UserProfile } from '../../shared/types/profile';
 import { WeatherSnapshot } from '../weather/weather.types';
@@ -33,6 +34,7 @@ export function HomeContextCard({ profile, weather }: HomeContextCardProps) {
       </View>
 
       <Text style={styles.message}>{weather.sourceMessage}</Text>
+      <Text style={styles.helper}>{formatWeatherSourceHint(weather)}</Text>
 
       <View style={styles.chips}>
         {profileItems.map((item) => (
@@ -80,6 +82,12 @@ const styles = StyleSheet.create({
     color: appColors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
+  },
+  helper: {
+    color: appColors.primary,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '600',
   },
   chips: {
     flexDirection: 'row',

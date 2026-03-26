@@ -10,6 +10,7 @@ export const DEFAULT_WEATHER_MOCK: WeatherSnapshot = {
   uvLevel: 'high',
   precipitationChance: 10,
   source: 'mock-fallback',
-  sourceMessage: 'mock 데이터로 보여주고 있어요.',
+  permissionState: 'unknown',
+  sourceMessage: '실시간 날씨를 가져오지 못해 mock 데이터로 보여주고 있어요.',
   updatedAt: new Date('2026-03-25T08:00:00+09:00').toISOString(),
 };

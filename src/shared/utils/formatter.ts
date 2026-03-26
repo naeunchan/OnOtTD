@@ -1,4 +1,10 @@
-import { DustGrade, UvLevel, WeatherCondition, WeatherSource } from '../../features/weather/weather.types';
+import {
+  DustGrade,
+  UvLevel,
+  WeatherCondition,
+  WeatherPermissionState,
+  WeatherSource,
+} from '../../features/weather/weather.types';
 import { PersonalColorTone, TempSensitivity, UsagePurpose } from '../types/profile';
 
 export function formatWeatherCondition(condition: WeatherCondition) {
@@ -74,6 +80,30 @@ export function formatWeatherSource(source: WeatherSource) {
   };
 
   return labels[source];
+}
+
+export function formatWeatherSourceHint({
+  locationName,
+  permissionState,
+  source,
+}: {
+  locationName: string;
+  permissionState: WeatherPermissionState;
+  source: WeatherSource;
+}) {
+  if (source === 'mock-fallback') {
+    return '네트워크 상태를 확인한 뒤 실시간 날씨 다시 시도를 눌러보세요.';
+  }
+
+  if (source === 'live-current-location') {
+    return '현재 위치가 바뀌었으면 아래 버튼으로 다시 불러오세요.';
+  }
+
+  if (permissionState === 'denied') {
+    return `설정에서 위치 권한을 허용하면 ${locationName} 대신 현재 위치 기준으로 바뀌어요.`;
+  }
+
+  return `${locationName} 기준 결과를 먼저 보여주고 있어요.`;
 }
 
 export function formatUpdatedAt(isoString: string) {
