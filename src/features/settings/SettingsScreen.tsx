@@ -9,8 +9,15 @@ import { UserProfile } from '../../shared/types/profile';
 import { AvatarPreview } from '../avatar/AvatarPreview';
 import { buildAvatarLook } from '../avatar/buildAvatarLook';
 import { SandboxChecklistCard } from './SandboxChecklistCard';
+import { SandboxWeatherModeCard } from './SandboxWeatherModeCard';
 import { SettingsForm } from './SettingsForm';
 import { useSettingsForm } from './useSettingsForm';
+import { WeatherModeOverride } from '../weather/weatherModeResolver';
+import {
+  getWeatherModeOverride,
+  resetWeatherModeOverride,
+  saveWeatherModeOverride,
+} from '../weather/weatherModeStorage';
 
 interface SettingsScreenProps {
   onSaved: () => void;
@@ -19,6 +26,7 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [weatherModeOverride, setWeatherModeOverride] = useState<WeatherModeOverride>('system');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -28,10 +36,11 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
     let mounted = true;
 
     async function loadProfile() {
-      const storedProfile = await getUserProfile();
+      const [storedProfile, storedWeatherModeOverride] = await Promise.all([getUserProfile(), getWeatherModeOverride()]);
 
       if (mounted) {
         setProfile(storedProfile);
+        setWeatherModeOverride(storedWeatherModeOverride);
         setLoading(false);
       }
     }
@@ -45,15 +54,18 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
 
   async function handleSave() {
     setSaving(true);
-    await saveFullProfile({
-      ...form.draft,
-      onboardingCompleted: true,
-      avatarCompleted: true,
-      avatar: {
-        ...form.draft.avatar,
-        nickname: form.draft.avatar.nickname.trim().length === 0 ? '온옷이' : form.draft.avatar.nickname.trim(),
-      },
-    });
+    await Promise.all([
+      saveFullProfile({
+        ...form.draft,
+        onboardingCompleted: true,
+        avatarCompleted: true,
+        avatar: {
+          ...form.draft.avatar,
+          nickname: form.draft.avatar.nickname.trim().length === 0 ? '온옷이' : form.draft.avatar.nickname.trim(),
+        },
+      }),
+      saveWeatherModeOverride(weatherModeOverride),
+    ]);
     setSaving(false);
     onSaved();
   }
@@ -69,7 +81,7 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
         style: 'destructive',
         onPress: async () => {
           setResetting(true);
-          await resetProfile();
+          await Promise.all([resetProfile(), resetWeatherModeOverride()]);
           setResetting(false);
           onReset();
         },
@@ -88,6 +100,7 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
       <Text style={{ color: appColors.textSecondary, fontSize: 14, lineHeight: 20 }}>
         이 빌드는 `geolocation` 권한이 선언되어 있습니다. 권한이 허용되면 현재 위치 날씨를, 아니면 기본 지역 날씨를 사용합니다.
       </Text>
+      <SandboxWeatherModeCard value={weatherModeOverride} onChange={setWeatherModeOverride} />
       <SandboxChecklistCard />
       <View style={{ gap: spacing.s12 }}>
         <Button loading={saving} onPress={handleSave}>
