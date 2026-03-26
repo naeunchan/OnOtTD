@@ -26,6 +26,7 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [savedWeatherModeOverride, setSavedWeatherModeOverride] = useState<WeatherModeOverride>('system');
   const [weatherModeOverride, setWeatherModeOverride] = useState<WeatherModeOverride>('system');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,6 +41,7 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
 
       if (mounted) {
         setProfile(storedProfile);
+        setSavedWeatherModeOverride(storedWeatherModeOverride);
         setWeatherModeOverride(storedWeatherModeOverride);
         setLoading(false);
       }
@@ -54,7 +56,7 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
 
   async function handleSave() {
     setSaving(true);
-    await Promise.all([
+    const [, nextWeatherModeOverride] = await Promise.all([
       saveFullProfile({
         ...form.draft,
         onboardingCompleted: true,
@@ -66,6 +68,7 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
       }),
       saveWeatherModeOverride(weatherModeOverride),
     ]);
+    setSavedWeatherModeOverride(nextWeatherModeOverride);
     setSaving(false);
     onSaved();
   }
@@ -82,6 +85,8 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
         onPress: async () => {
           setResetting(true);
           await Promise.all([resetProfile(), resetWeatherModeOverride()]);
+          setSavedWeatherModeOverride('system');
+          setWeatherModeOverride('system');
           setResetting(false);
           onReset();
         },
@@ -100,7 +105,11 @@ export function SettingsScreen({ onSaved, onReset }: SettingsScreenProps) {
       <Text style={{ color: appColors.textSecondary, fontSize: 14, lineHeight: 20 }}>
         이 빌드는 `geolocation` 권한이 선언되어 있습니다. 권한이 허용되면 현재 위치 날씨를, 아니면 기본 지역 날씨를 사용합니다.
       </Text>
-      <SandboxWeatherModeCard value={weatherModeOverride} onChange={setWeatherModeOverride} />
+      <SandboxWeatherModeCard
+        savedValue={savedWeatherModeOverride}
+        value={weatherModeOverride}
+        onChange={setWeatherModeOverride}
+      />
       <SandboxChecklistCard />
       <View style={{ gap: spacing.s12 }}>
         <Button loading={saving} onPress={handleSave}>
