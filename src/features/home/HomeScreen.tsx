@@ -6,6 +6,7 @@ import { Screen } from '../../shared/components/Screen';
 import { AvatarPreview } from '../avatar/AvatarPreview';
 import { CarryItemChips } from './CarryItemChips';
 import { HomeContextCard } from './HomeContextCard';
+import { HomeDiagnosticsCard } from './HomeDiagnosticsCard';
 import { HomeHeader } from './HomeHeader';
 import { TodayOutfitCard } from './TodayOutfitCard';
 import { useHomeViewModel } from './useHomeViewModel';
@@ -49,6 +50,13 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
       />
 
       <HomeContextCard profile={viewModel.profile} weather={viewModel.weather} />
+      <HomeDiagnosticsCard
+        buildTimeWeatherMode={viewModel.buildTimeWeatherMode}
+        effectiveWeatherMode={viewModel.weatherExecution.weatherMode}
+        locationMode={viewModel.weatherExecution.locationMode}
+        permissionState={viewModel.weather.permissionState}
+        weatherModeOverride={viewModel.weatherModeOverride}
+      />
       <AvatarPreview nickname={viewModel.profile.avatar.nickname} look={viewModel.avatarLook} />
       <WeatherSummaryCard weather={viewModel.weather} />
       <TodayOutfitCard recommendation={viewModel.recommendation} />

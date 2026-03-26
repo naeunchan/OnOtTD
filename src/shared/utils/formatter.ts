@@ -5,6 +5,7 @@ import {
   WeatherPermissionState,
   WeatherSource,
 } from '../../features/weather/weather.types';
+import { WeatherMode, WeatherModeOverride, WeatherLocationMode } from '../../features/weather/weatherModeResolver';
 import { PersonalColorTone, TempSensitivity, UsagePurpose } from '../types/profile';
 
 export function formatWeatherCondition(condition: WeatherCondition) {
@@ -80,6 +81,40 @@ export function formatWeatherSource(source: WeatherSource) {
   };
 
   return labels[source];
+}
+
+export function formatWeatherMode(mode: WeatherMode) {
+  return mode === 'mock' ? 'mock 데이터' : '실시간 날씨';
+}
+
+export function formatWeatherModeOverride(mode: WeatherModeOverride) {
+  const labels: Record<WeatherModeOverride, string> = {
+    system: '빌드 기본값',
+    live: '실시간 날씨 강제',
+    'default-region': '기본 지역 실황 강제',
+    mock: 'mock 데이터 강제',
+  };
+
+  return labels[mode];
+}
+
+export function formatWeatherLocationMode(mode: WeatherLocationMode) {
+  const labels: Record<WeatherLocationMode, string> = {
+    system: '기본 동작',
+    'default-region': '기본 지역 강제',
+  };
+
+  return labels[mode];
+}
+
+export function formatWeatherPermissionState(state: WeatherPermissionState) {
+  const labels: Record<WeatherPermissionState, string> = {
+    granted: '허용',
+    denied: '거부',
+    unknown: '확인 불가',
+  };
+
+  return labels[state];
 }
 
 export function formatWeatherSourceHint({
